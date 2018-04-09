@@ -9,20 +9,30 @@ using Microsoft.Azure.CognitiveServices.Language.TextAnalytics.Models;
 using Microsoft.Azure.CognitiveServices.Search.EntitySearch;
 using Microsoft.Azure.CognitiveServices.Search.EntitySearch.Models;
 using Microsoft.Rest;
+using Microsoft.Extensions.Configuration;
 
 namespace DemoGuideLiam.Controllers
 {
     [Route("api/[controller]")]
     public class EntityController : Controller
     {
+        private IConfiguration config;
+
+        public EntityController(IConfiguration config)
+        {
+            this.config = config;
+        }
+
         // GET api/values
         [HttpGet]
         public string Get(string textToInspect)
         {
+
             // Create a client.
             ITextAnalyticsAPI client = new TextAnalyticsAPI();
             client.AzureRegion = AzureRegions.Westeurope;
-            client.SubscriptionKey = "4e3daf160cc045ccbbd9092b9ce56add";
+
+            client.SubscriptionKey = config["TextAnalysisKey"];
 
             StringBuilder sb = new StringBuilder();
 
@@ -68,7 +78,7 @@ namespace DemoGuideLiam.Controllers
                 {
                     sb.AppendLine("\t\t" + keyphrase);
 
-                    var entitySearchApi= new EntitySearchAPI(new ApiKeyServiceClientCredentials("3b50878b7c2f4f6d8098a245f4212978"));
+                    var entitySearchApi = new EntitySearchAPI(new ApiKeyServiceClientCredentials(config["EntityKey"]));
                     var entityData = entitySearchApi.Entities.Search(keyphrase);
                     if (entityData?.Entities?.Value?.Count > 0)
                     {
@@ -117,7 +127,7 @@ namespace DemoGuideLiam.Controllers
             return sb.ToString();
 
         }
-        
-        
+
+
     }
 }
